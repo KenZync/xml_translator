@@ -9,9 +9,11 @@
 # Usage
 Put xml_translator.py in folder of xml files
 
+
 py xml_translator.py FromLanguage ToLanguage
 
 py xml_translator.py File.xml FromLanguage ToLanguage
+
 
 Output will be at folder /output/files.xml
 
