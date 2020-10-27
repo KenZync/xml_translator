@@ -73,19 +73,23 @@ def main():
             for NAMEFILE in os.listdir():
                   if NAMEFILE.endswith('.xml'):
                     with codecs.open(NAMEFILE, "r", "utf-8") as fp:
+                        print("\n==GETTING ORIGINAL WORDS BY LINES==")
+                        COUNT = 0
+                        translator = Translator()
+                        character_count = 0
                         INDEX = 0
                         READING = 0
                         translatecount = 0
                         dontranslatelist = []
                         originlist = []
                         alienlist = []
+                        alienlist_text = []
                         print("NameFile="+NAMEFILE)
                         num_lines = len([l for l in open(NAMEFILE,encoding="utf-8")])
                         file = codecs.open("output/"+NAMEFILE, "w", "utf-8")
                         file.close()
                         for line in fp:
                               COUNT += 1
-
                               # Dont Translate a Line That Contain Variable
                               if "\"h\"" in line:
                                     dontranslatelist.append(True)
@@ -95,82 +99,97 @@ def main():
                                     dontranslatelist.append(True)
                               else:
                                     dontranslatelist.append(False)
-
                               # For remove "\n"
                               # originlist.append(line.replace('>\n', '>'))
                               
                               originlist.append(line)
                               KOREAN = findvalue(line.strip())
                               character_count += len(KOREAN)
-                              alienlist.append(KOREAN)
+                              alienlist_text.append(KOREAN)
+                              alienlist.append(TO_UNESCAPE(KOREAN))
+                              # print("LINE:",TO_ESCAPE(KOREAN))
+                              # print("ALIENLIST:",TO_UNESCAPE(KOREAN))
                               READING += len(KOREAN)
                               INDEX += 1
 
                               if(READING>READLIMITS):
                                     translatecount += 1
                                     READING = 0
-                                    print("\nTranslation Line:" + str(INDEX) + "/" + str(num_lines))
-                                    print("\n==TRANSLATION IN PROCESS==") 
+                                    # print("\n##Doing Magic##") 
+                                    print("Translation Line:" + str(INDEX) + "/" + str(num_lines) + "\n")
                                     translations = translator.translate(alienlist, sec=SOURCE_LANGUAGE, dest=DESTINATION_LANGUAGE)
                                     translatedlist = []
                                     for translation in translations:
-                                          translatedlist.append(translation.text)
-                                          print("TRANSLATE:",translation.text)
+                                          translatedlist.append(TO_ESCAPE_TEXT(translation.text))
+                                          # print("TRANSLATE:",TO_ESCAPE_TEXT(translation.text))
                                     englishpatch=[]
-                                    for origin,alien,translated,dontranslate in zip(originlist, alienlist, translatedlist, dontranslatelist):
+                                    for origin,alien_text,translated,dontranslate,alien in zip(originlist, alienlist_text, translatedlist, dontranslatelist,alienlist):
+                                          # print("OOO ",origin)
+                                          # print("SSS ",alien_text)
+                                          # print("AAA ",alien)
+                                          # print("TTT ",translated)
+                                          # print("XXX" ,dontranslate)
                                           if(dontranslate == False):
-                                                while alien==translated and not len(alien)==0 and not alien.isnumeric():
-                                                      # print(alien,",",translated,",",len(alien))
-                                                      fixtranslation = translator.translate(alien, sec=SOURCE_LANGUAGE, dest=DESTINATION_LANGUAGE)
-                                                      translated = fixtranslation.text
-                                                englishpatch.append(origin.replace(alien, translated))
-                                                
+                                                englishpatch.append(origin.replace(alien_text, TO_ESCAPE_TEXT(translated)))
+                                                # print("YYY",TO_ESCAPE_TEXT(translated))
+
                                           else:
                                                 englishpatch.append(origin)
+                                    print("\n==END MINI PART==") 
 
+                                    
                                     PATCH = "".join(englishpatch)
-
+                                    
                                     file = codecs.open("output/"+NAMEFILE, "a", "utf-8")
                                     file.write(PATCH)
+                                    # for finished in englishpatch:
+                                    #       file.write(finished)
                                     file.close()
                                     dontranslatelist = []
                                     originlist = []
-                                    alienlist = []  
+                                    alienlist = []   
+                                    alienlist_text = []
+                                    englishpatch = []
+                                    translatedlist = []
                         if originlist:
                               translatecount += 1
                               READING = 0
-                              print("\nTranslation Line:" + str(INDEX) + "/" + str(num_lines))
-                              print("\n==TRANSLATION IN PROCESS==") 
+                              # print("\n##Doing Magic##") 
+                              print("Translation Line:" + str(INDEX) + "/" + str(num_lines) + "\n")
                               translations = translator.translate(alienlist, sec=SOURCE_LANGUAGE, dest=DESTINATION_LANGUAGE)
                               translatedlist = []
                               for translation in translations:
-                                    translatedlist.append(translation.text)
-                                    print("TRANSLATE:",translation.text)
-                              
+                                    translatedlist.append(TO_ESCAPE_TEXT(translation.text))
+                                    # print("TRANSLATE:",TO_ESCAPE_TEXT(translation.text))
                               englishpatch=[]
-                              for origin,alien,translated,dontranslate in zip(originlist, alienlist, translatedlist, dontranslatelist):
+                              for origin,alien_text,translated,dontranslate,alien in zip(originlist, alienlist_text, translatedlist, dontranslatelist,alienlist):
+                                    # print("OOO ",origin)
+                                    # print("SSS ",alien_text)
+                                    # print("AAA ",alien)
+                                    # print("TTT ",translated)
+                                    # print("XXX" ,dontranslate)
                                     if(dontranslate == False):
-                                          while alien==translated and not len(alien)==0 and not alien.isnumeric():
-                                                # print(alien,",",translated,",",len(alien))
-                                                fixtranslation = translator.translate(alien, sec=SOURCE_LANGUAGE, dest=DESTINATION_LANGUAGE)
-                                                translated = fixtranslation.text
-                                          englishpatch.append(origin.replace(alien, translated))
-                                          
+                                          englishpatch.append(origin.replace(alien_text, TO_ESCAPE_TEXT(translated)))
+                                          # print("YYY",TO_ESCAPE_TEXT(translated))
+
                                     else:
                                           englishpatch.append(origin)
+                              print("\n==END MINI PART==") 
 
+                              
                               PATCH = "".join(englishpatch)
-
+                              
                               file = codecs.open("output/"+NAMEFILE, "a", "utf-8")
                               file.write(PATCH)
+                              # for finished in englishpatch:
+                              #       file.write(finished)
                               file.close()
                               dontranslatelist = []
                               originlist = []
-                              alienlist = [] 
-
-                              print("CharacterCounts:" + str(character_count))
-                              print("Translate Count:" + str(translatecount))
-                              print("\n===TRANSLATED===")            
+                              alienlist = []   
+                              alienlist_text = []
+                              englishpatch = []
+                              translatedlist = []           
             sys.exit()
       elif  len(sys.argv) == 4:
             print("===TRANSLATING THE XML FILE===")
