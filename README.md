@@ -5,7 +5,7 @@
  python 3
  
  pip install googletrans
- 
+ pip install GoogleFreeTrans
 # Usage
 Put xml_translator.py in folder of xml files
 
